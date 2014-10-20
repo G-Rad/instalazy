@@ -1,0 +1,123 @@
+﻿@model Website.Models.Home.UserModel
+
+<p class="lead"><img src="@Model.ProfilePicture" width="110px"></p>
+<h1 class="cover-heading">Hi @Model.Fullname</h1>
+<p class="hidden"><span>Liked:</span>@Model.LikesNumber</p>
+<p class="lead">You are intalazied. It means your instagram feed will be liked automatically in your behalf.</p>
+
+<p><a href="javascript:void(0)" class="js-change-email @(Model.HasEmail ? "" : "hidden")">Change email</a></p>
+
+<div>
+	<div class="col-xs-8 col-xs-offset-2 col-sm-6 col-sm-offset-3 col-lg-6 col-lg-offset-3 hidden js-change-email-box">
+		<div class="input-group input-group-sm">
+			<span class="input-group-addon">@@</span>
+			<input type="text" class="form-control" id='new_email_update' placeholder="Email" value="@Model.Email">
+			<div class="input-group-btn">
+				<button type="button" class="btn btn-default has-spinner js-update-email">
+					<span class="spinner"><i class="icon-spin icon-refresh"></i></span>
+					Update
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="bs-callout bs-callout-info js-set-email-box @(Model.HasEmail ? "hidden" : "")">
+	<h4>What's next?</h4>
+	<p>Please specify your email so we can contact with you.</p>
+	<div class="row">
+		<div class="col-xs-8 col-xs-offset-2 col-sm-6 col-sm-offset-3 col-lg-6 col-lg-offset-3">
+			<div class="input-group input-group-sm">
+				<span class="input-group-addon">@@</span>
+				<input type="text" class="form-control" id='new_email_set' placeholder="Email" value="@Model.Email">
+				<div class="input-group-btn">
+					<button type="button" class="btn btn-default has-spinner js-set-email">
+						<span class="spinner"><i class="icon-spin icon-refresh"></i></span>
+						Add Email
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<p class="lead"><a href="@Url.Action("Stop")" class="btn btn-lg btn-danger">Stop instalazy me</a></p>
+
+@section scripts
+{
+	<script>
+		var setEmailBox;
+
+		var changeEmailBox;
+		var changeEmailButton;
+		
+		var updateEmailButton;
+		var setEmailButton;
+
+		$(function() {
+			$('.has-spinner').click(function() {
+				$(this).toggleClass('active');
+			});
+
+			setEmailBox = $('.js-set-email-box');
+			changeEmailBox = $('.js-change-email-box');
+			changeEmailButton = $('.js-change-email');
+			
+			updateEmailButton = $('.js-update-email');
+			setEmailButton = $('.js-set-email');
+
+			updateEmailButton.click(function () {
+				saveEmail(true);
+			});
+
+			setEmailButton.click(function () {
+				saveEmail(false);
+			});
+
+			changeEmailButton.click(function() {
+				changeEmailButton.addClass('hidden');
+				changeEmailBox.removeClass('hidden');
+			});
+		});
+
+		function saveEmail(isUpdate) {
+			var enteredEmail = $('#new_email_set').val();
+			if (isUpdate)
+				enteredEmail = $('#new_email_update').val();
+
+			$.ajax('@Url.Action("ChangeEmail", "Home")', {
+				data: { email: enteredEmail },
+				type: "post",
+				success: function () {
+					$(setEmailButton).add(updateEmailButton).removeClass('active');
+					
+					onEmailUpdated(enteredEmail);
+				},
+				error: function() {
+					$(setEmailButton).add(updateEmailButton).removeClass('active');
+				}
+			});
+		}
+
+		function onEmailUpdated(enteredEmail) {
+			var hasEmail = false;
+
+			if (enteredEmail.length > 0)
+				hasEmail = true;
+
+			if (hasEmail) {
+				setEmailBox.addClass('hidden');
+				changeEmailButton.removeClass('hidden');
+				changeEmailBox.addClass('hidden');
+			} else {
+				setEmailBox.removeClass('hidden');
+				changeEmailButton.addClass('hidden');
+				changeEmailBox.addClass('hidden');
+			}
+
+			$('#new_email_set').val(enteredEmail);
+			$('#new_email_update').val(enteredEmail);
+		}
+	</script>
+}

@@ -1,0 +1,14 @@
+﻿@model Website.Models.Layout.MenuModel
+
+@{
+	Layout = null;
+}
+
+<ul class="nav masthead-nav">
+	<li><a href="/">Home</a></li>
+	<li><a href="@Url.Action("Index","Contact")">Contact</a></li>
+	@if (Model.ShowLoginButton)
+	{
+		<li><a href="@Model.InstalazyLinkUrl" class="btn btn-lg btn-success">Login</a></li>
+	}
+</ul>
